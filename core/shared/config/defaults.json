@@ -135,6 +135,12 @@
         "publicReadOnlyApiKey": null,
         "contentFilter": "off"
     },
+    "commento": {
+        "serverUrl": null,
+        "sso": {
+            "secret": null
+        }
+    },
     "opensea": {
         "privateReadOnlyApiKey": null
     },
