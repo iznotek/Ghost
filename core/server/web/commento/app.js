@@ -20,16 +20,13 @@ module.exports = function setupMembersApp() {
     membersApp.use(shared.middleware.cacheControl('private'));
 
     // Support CORS for requests from the frontend
-    const commento_server_url = config.get('sso:commento:serverUrl');
+    const commento_server_url = config.get('commento:serverUrl');
     const serverUrl = new URL(commento_server_url);
     membersApp.use(cors(serverUrl.origin));
 
     // Commento
     membersApp.get('/sso', // shared.middleware.brute.membersAuth,  
-        (req, res, next) => commentoService.middleware.ssoRedirect(req, res, next));
-
-    membersApp.get('/post', // shared.middleware.brute.membersAuth,  
-        (req, res, next) => commentoService.middleware.ssoPost(req, res, next));
+        (req, res, next) => commentoService.middleware.ssoCheck(req, res, next));
 
     debug('Commento App setup end');
 

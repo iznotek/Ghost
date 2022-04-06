@@ -22,7 +22,7 @@ function hmac_sha256(encodedData, secret, format) {
       .digest(format);
 }
 
-const ssoRedirect = async function (req, res, next) {
+const ssoCheck = async function (req, res, next) {
     if (!req.url.includes('token=') || !req.url.includes('hmac=')) {
         return next();
     }
@@ -35,29 +35,17 @@ const ssoRedirect = async function (req, res, next) {
         throw new errors.ValidationError({message: tpl(messages.hmacUnresolved)});
     }
 
-    const searchParams = new URLSearchParams('');
-    searchParams.set('token', token);
-    res.redirect(`${config.getSiteUrl()}commento?${searchParams.toString()}`);
-}
-
-
-const ssoPost = async function (req, res, next) {
-    if (!req.url.includes('token=')) {
-      return next();
-    }
-
     const member = await membersService.ssr.getMemberDataFromSession(req, res);
     if (!member) {
       throw new errors.ValidationError({message: tpl(messages.unconnected)});
     }
 
-    const token = req.query.token;
     var payload = {
         "token": token,
         "email": member.email,
         "name":  member.name,
         "link":  '',
-        "photo": req.query.avatar // member.avatar_image 
+        "photo": member.avatar_image || req.query.avatar 
     }
 
     const out_hmac = hmac_sha256(JSON.stringify(payload), commento_secret, 'hex');
@@ -70,6 +58,5 @@ const ssoPost = async function (req, res, next) {
 };
 
 module.exports = {
-    ssoRedirect,
-    ssoPost
+    ssoCheck
 };
